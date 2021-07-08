@@ -2,9 +2,168 @@
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+# http:
+#   base_url: example.duckdns.org:8123
+
 # Text to speech
 tts:
   - platform: google_translate
+history:
+  exclude:
+    domains:
+      - persistent_notification
+
+media_player:
+  - platform: androidtv
+    host: 192.168.88.13
+    name: "asus_panel"
+    adb_server_ip: 127.0.0.1
+    adb_server_port: 5037
+    get_sources: false
+weather:
+  - platform: openweathermap
+    api_key: a3cdbad786a30df287eb3b624d56cc93
+    mode: freedaily
+    latitude: 54.8523
+    longitude: 83.106
+    
+mqtt:
+  broker: 192.168.88.17
+  client_id: hass_mqtt_client
+  username: mqttusr
+  password: qwerty123
+  
+sensor:
+  - platform: rest
+    name: garage_sensors
+    resource: http://192.168.88.172
+    json_attributes:
+      - variables
+    scan_interval: 300
+    value_template: 'OK'
+  - platform: template
+    sensors:
+      mining_temperature:
+        friendly_name: 'Temperature of Mining_room'
+        value_template: '{{ states.sensor.garage_sensors.attributes["variables"]["temperature"] }}'
+        device_class: temperature
+        unit_of_measurement: '°C'
+      basement_humidity:
+        friendly_name: 'Humidity of basement'
+        value_template: '{{ states.sensor.garage_sensors.attributes["variables"]["CellarHumidity"] }}'
+        device_class: humidity
+        unit_of_measurement: '%'
+      basement_temperature:
+        friendly_name: 'Temperature of basement'
+        value_template: '{{ states.sensor.garage_sensors.attributes["variables"]["CellarTemp"] }}'
+        device_class: temperature
+        unit_of_measurement: '°C'
+  - platform: mqtt
+    name: 1st_floor_in_circuit_temp
+    state_topic: "home-assistant/sensors/boiler_room/f1_in"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: 1st_floor_out_circuit_temp
+    state_topic: "home-assistant/sensors/boiler_room/f1_out"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: 1st_floor_mix_circuit_temp
+    state_topic: "home-assistant/sensors/boiler_room/f1_mix"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: 2nd_floor_in_circuit_temp
+    state_topic: "home-assistant/sensors/boiler_room/f2_in"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: 2nd_floor_out_circuit_temp
+    state_topic: "home-assistant/sensors/boiler_room/f2_out"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: 2nd_floor_mix_circuit_temp
+    state_topic: "home-assistant/sensors/boiler_room/f2_mix"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: base_floor_in_circuit_temp
+    state_topic: "home-assistant/sensors/boiler_room/base_in"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: base_floor_out_circuit_temp
+    state_topic: "home-assistant/sensors/boiler_room/base_out"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: base_floor_mix_circuit_temp
+    state_topic: "home-assistant/sensors/boiler_room/base_mix"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: outdoor_temp
+    state_topic: "home-assistant/sensors/outdoor_temp"
+    device_class: temperature
+    qos: 0
+    unit_of_measurement: '°C'
+  - platform: mqtt
+    name: asus-panel_batt
+    state_topic: "home-assistant/devices/wallpanel/asus-panel/sensor/battery"
+    device_class: battery
+    qos: 0
+    unit_of_measurement: '%'
+    value_template: "{{ value_json.value}}"
+binary_sensor:
+  - platform: mqtt
+    name: Garage_doors
+    state_topic: "home-assistant/sensors/garage/Doors"
+    payload_on: "open"
+    payload_off: "close"
+    availability_topic: "home-assistant/sensors/garage/available"
+    payload_available: "on"
+    payload_not_available: "off"
+    qos: 0
+    device_class: garage_door
+  - platform: mqtt
+    name: asus-panel_screen
+    state_topic: "home-assistant/devices/wallpanel/asus-panel/state"
+    payload_on: "True"
+    payload_off: "False"
+    device_class: opening
+    qos: 0
+    value_template: "{{ value_json.screenOn}}"
+  - platform: mqtt
+    name: wallpanel_pir
+    state_topic: "home-assistant/sensors/indoor_global/wallpanel_pir"
+    payload_on: "on"
+    payload_off: "off"
+    qos: 0
+    device_class: moving
+    
+switch:
+  - platform: mqtt
+    name: Boiler_light
+    state_topic: "home-assistant/controller_STATES/lights/boiler_livolo_1"
+    command_topic: "home-assistant/controller_SWITCHES/lights/boiler_livolo_1"
+    payload_on: "on"
+    payload_off: "off"
+    state_on: "on"
+    state_off: "off"
+    qos: 0
+    retain: false
 
 group: !include groups.yaml
 automation: !include automations.yaml
