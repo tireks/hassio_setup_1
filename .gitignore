@@ -1,0 +1,15 @@
+!*.yaml
+!.gitignore
+!*.md
+
+.storage
+.cloud
+.google.token
+
+ip_bans.yaml
+secrets.yaml
+known_devices.yaml
+home-assistant.log
+home-assistant_v2.db
+home-assistant_v2.db-shm
+home-assistant_v2.db-wal
