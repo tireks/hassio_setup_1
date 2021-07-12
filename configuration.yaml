@@ -13,6 +13,8 @@ history:
   exclude:
     domains:
       - persistent_notification
+    entities:
+      - switch.boiler_light
 
 media_player:
   - platform: androidtv

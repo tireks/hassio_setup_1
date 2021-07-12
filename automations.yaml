@@ -85,6 +85,7 @@
       command: POWER
       entity_id: media_player.asus_panel
     service: androidtv.adb_command
+  mode: single
 - alias: wallpanel screen cntrl-2
   description: turning wallpanel screen off by pir
   trigger:
